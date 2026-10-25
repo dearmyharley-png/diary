@@ -13,12 +13,48 @@
 
 /* Auto-growing diary sheet: one consistent 36px rhythm for text and ruled lines. */
 #content{display:block;min-height:180px;height:auto;resize:none;overflow-y:hidden;line-height:36px;padding:0;margin:24px 0 14px;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,#a4b59b5e 35px,#a4b59b5e 36px);background-size:100% 36px;background-position:left top;}
-</style><style id="login-gate-style">#loginGate{position:fixed;inset:0;z-index:9999;background:#e9eadf;display:flex;align-items:center;justify-content:center;padding:20px}#loginGate.hidden{display:none!important}.gate-card{width:min(100%,420px);padding:38px 34px;background:#fbf5e7;border:1px solid #d9ddcc;box-shadow:0 10px 35px #344b361b;text-align:center}.gate-card h2{font-size:28px;font-weight:400;margin:0 0 8px}.gate-card .sprout{font-size:28px;margin-bottom:14px}.gate-card input{display:block;width:100%;padding:12px;margin:10px 0;background:#fffdf6;border:1px solid #c8d5c2;color:#34483a;font:inherit}.gate-card .btn{width:100%;margin-top:10px}.gate-card .small{font-size:12px;color:#788677;line-height:1.8;margin:15px 0 0}.gate-card .gate-error{font-size:13px;color:#a04747;min-height:22px;margin-top:12px;overflow-wrap:anywhere}.gate-card .config{display:none}.gate-card.needs-config .config{display:block}.gate-card.needs-config .credentials{display:none}</style></head><body><div id="loginGate"><div class="gate-card" id="gateCard"><div class="sprout">🌱</div><h2>마음의 여백</h2><div class="credentials"><p class="small">나만의 일기장을 열어 줘.</p><input id="gateEmail" type="email" autocomplete="username" placeholder="이메일"><input id="gatePassword" type="password" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" id="gateSignin">로그인</button><button class="btn" id="gateSignup">처음이라면 계정 만들기</button></div><div class="config"><p class="small">처음 한 번만 Supabase 연결 정보를 입력해 줘.</p><input id="gateUrl" type="url" placeholder="Supabase Project URL"><input id="gateKey" type="password" placeholder="Supabase publishable / anon key"><button class="btn primary" id="gateSaveConfig">연결하고 로그인하기</button><p class="small">secret / service_role 키는 입력하지 마.</p></div><div id="gateStatus" class="gate-error" role="status" aria-live="polite"></div></div></div><header><nav class="diary-tabs" aria-label="일기장 메뉴"><button type="button" id="tabWrite" class="diary-tab active" aria-current="page">오늘의 기록</button><button type="button" id="tabMonths" class="diary-tab">월별 일기</button></nav><button class="topbtn" id="settingsBtn">설정 ⚙</button></header><main class="wrap"><section class="paper settings" id="settings"><div class="date">나만의 비밀 서랍 · Supabase 연결</div><label>Supabase Project URL</label><input id="url" placeholder="https://xxxx.supabase.co"><label>Supabase publishable / anon key</label><input id="key" type="password" placeholder="sb_publishable_... 또는 anon key"><p class="hint">설정은 이 브라우저에만 저장돼. service_role 키는 절대 입력하지 마. 이메일 로그인과 RLS가 필요해.</p><button class="btn primary" id="saveConfig">연결 설정 저장</button><section class="auth-inside" id="authbar"><div id="signedOut"><div class="date">비밀 일기장 열기</div><label class="hint">이메일</label><input id="email" type="email" placeholder="나의 이메일" style="width:100%;padding:10px;margin:8px 0;border:1px solid #c8d5c2;background:#fffaf0"><label class="hint">비밀번호</label><input id="password" type="password" placeholder="비밀번호 (6자 이상)" style="width:100%;padding:10px;margin:8px 0;border:1px solid #c8d5c2;background:#fffaf0"><div class="actions"><button class="btn" id="signup">처음이라면 가입</button><button class="btn primary" id="signin">로그인</button></div></div><div id="signedIn" class="hidden actions"><span class="status" id="account"></span><button class="btn" id="signout">로그아웃</button></div><p class="status" id="authStatus"></p></section></section><div id="writeView"><section class="paper" id="editor"><div class="date"><strong id="today"></strong> · 오늘의 기록</div><textarea id="content" placeholder=""></textarea><div class="actions"><span class="status" id="writeStatus"></span><button class="btn primary" id="submit">기록 남기기</button></div></section><div class="divider">✳ &nbsp; 지나온 마음들 &nbsp; ✳</div><div id="entries" class="thread"><div class="paper empty"></div></div><div style="text-align:center;margin:24px"><button class="btn hidden" id="more">이전 기록 더 읽기</button></div></div><section id="monthsView" class="hidden"><div class="month-head"><span>월별로 모아 보는 기록</span><span id="monthCount" class="status"></span></div><div id="monthlyEntries" aria-live="polite"><div class="paper empty">기록을 불러오는 중…</div></div></section></main><script type="module">
+
+/* Compact previews on today's page */
+#entries .entry p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;white-space:pre-wrap;line-height:2.1;max-height:calc(2.1em * 4);margin-bottom:8px}
+#entries .entry.expanded p{display:block;max-height:none;overflow:visible}
+#entries .entry .entry-toggle{display:inline-block;margin:2px 0 12px;padding:5px 0;color:#557353;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+#entries .entry .entry-toggle:focus-visible{outline:2px solid #557353}
+/* Calendar archive */
+.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 14px}
+.calendar-toolbar h2{font-size:21px;font-weight:400;letter-spacing:1px;margin:0}
+.calendar-nav{display:flex;gap:8px}
+.calendar-nav button{border:1px solid #c7d1c0;background:#fff;color:#536f50;border-radius:2px;padding:5px 12px;font-size:17px}
+.calendar-shell{padding:24px 30px 27px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.calendar-weekday{text-align:center;font-size:12px;color:#7c8c79;padding:10px 0}
+.calendar-day{background:transparent;border:1px solid transparent;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#34483a;border-radius:3px;font-size:16px}
+.calendar-day.has-entry{background:#f1f5ed;border-color:#dbe5d5;cursor:pointer}
+.calendar-day.has-entry:hover,.calendar-day.selected{background:#dce9d8;border-color:#7c9974}
+.calendar-day:disabled{cursor:default;color:#aab3a7}
+.calendar-day .day-count{font-size:10px;color:#64825d;line-height:1}
+.calendar-day:focus-visible{outline:2px solid #557353}
+.day-heading{font-size:17px;font-weight:400;border-bottom:1px solid #c6d3c1;padding:10px 0 12px;margin:22px 0 16px}
+.archive-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.archive-tools .btn{background:#fff}
+@media(max-width:600px){.calendar-shell{padding:17px 13px}.calendar-day{min-height:49px;font-size:14px}.calendar-grid{gap:2px}.calendar-toolbar h2{font-size:18px}}
+</style><style id="login-gate-style">#loginGate{position:fixed;inset:0;z-index:9999;background:#e9eadf;display:flex;align-items:center;justify-content:center;padding:20px}#loginGate.hidden{display:none!important}.gate-card{width:min(100%,420px);padding:38px 34px;background:#fbf5e7;border:1px solid #d9ddcc;box-shadow:0 10px 35px #344b361b;text-align:center}.gate-card h2{font-size:28px;font-weight:400;margin:0 0 8px}.gate-card .sprout{font-size:28px;margin-bottom:14px}.gate-card input{display:block;width:100%;padding:12px;margin:10px 0;background:#fffdf6;border:1px solid #c8d5c2;color:#34483a;font:inherit}.gate-card .btn{width:100%;margin-top:10px}.gate-card .small{font-size:12px;color:#788677;line-height:1.8;margin:15px 0 0}.gate-card .gate-error{font-size:13px;color:#a04747;min-height:22px;margin-top:12px;overflow-wrap:anywhere}.gate-card .config{display:none}.gate-card.needs-config .config{display:block}.gate-card.needs-config .credentials{display:none}</style></head><body><div id="loginGate"><div class="gate-card" id="gateCard"><div class="sprout">🌱</div><h2>마음의 여백</h2><div class="credentials"><p class="small">나만의 일기장을 열어 줘.</p><input id="gateEmail" type="email" autocomplete="username" placeholder="이메일"><input id="gatePassword" type="password" autocomplete="current-password" placeholder="비밀번호"><button class="btn primary" id="gateSignin">로그인</button><button class="btn" id="gateSignup">처음이라면 계정 만들기</button></div><div class="config"><p class="small">처음 한 번만 Supabase 연결 정보를 입력해 줘.</p><input id="gateUrl" type="url" placeholder="Supabase Project URL"><input id="gateKey" type="password" placeholder="Supabase publishable / anon key"><button class="btn primary" id="gateSaveConfig">연결하고 로그인하기</button><p class="small">secret / service_role 키는 입력하지 마.</p></div><div id="gateStatus" class="gate-error" role="status" aria-live="polite"></div></div></div><header><nav class="diary-tabs" aria-label="일기장 메뉴"><button type="button" id="tabWrite" class="diary-tab active" aria-current="page">오늘의 기록</button><button type="button" id="tabMonths" class="diary-tab">월별 일기</button></nav><button class="topbtn" id="settingsBtn">설정 ⚙</button></header><main class="wrap"><section class="paper settings" id="settings"><div class="date">나만의 비밀 서랍 · Supabase 연결</div><label>Supabase Project URL</label><input id="url" placeholder="https://xxxx.supabase.co"><label>Supabase publishable / anon key</label><input id="key" type="password" placeholder="sb_publishable_... 또는 anon key"><p class="hint">설정은 이 브라우저에만 저장돼. service_role 키는 절대 입력하지 마. 이메일 로그인과 RLS가 필요해.</p><button class="btn primary" id="saveConfig">연결 설정 저장</button><section class="auth-inside" id="authbar"><div id="signedOut"><div class="date">비밀 일기장 열기</div><label class="hint">이메일</label><input id="email" type="email" placeholder="나의 이메일" style="width:100%;padding:10px;margin:8px 0;border:1px solid #c8d5c2;background:#fffaf0"><label class="hint">비밀번호</label><input id="password" type="password" placeholder="비밀번호 (6자 이상)" style="width:100%;padding:10px;margin:8px 0;border:1px solid #c8d5c2;background:#fffaf0"><div class="actions"><button class="btn" id="signup">처음이라면 가입</button><button class="btn primary" id="signin">로그인</button></div></div><div id="signedIn" class="hidden actions"><span class="status" id="account"></span><button class="btn" id="signout">로그아웃</button></div><p class="status" id="authStatus"></p></section></section><div id="writeView"><section class="paper" id="editor"><div class="date"><strong id="today"></strong> · 오늘의 기록</div><textarea id="content" placeholder=""></textarea><div class="actions"><span class="status" id="writeStatus"></span><button class="btn primary" id="submit">기록 남기기</button></div></section><div class="divider">✳ &nbsp; 지나온 마음들 &nbsp; ✳</div><div id="entries" class="thread"><div class="paper empty"></div></div><div style="text-align:center;margin:24px"><button class="btn hidden" id="more">이전 기록 더 읽기</button></div></div><section id="monthsView" class="hidden"><div class="month-head archive-tools"><span>날짜를 선택하면 그날의 기록을 모아 볼 수 있어.</span><button type="button" class="btn" id="exportWord">전체 일기 Word로 내보내기 (.docx)</button></div><div class="paper calendar-shell"><div class="calendar-toolbar"><h2 id="calendarTitle"></h2><div class="calendar-nav"><button type="button" id="prevMonth" aria-label="이전 달">‹</button><button type="button" id="nextMonth" aria-label="다음 달">›</button></div></div><div class="calendar-grid" id="calendarGrid" aria-label="일기 달력"></div></div><div class="month-head"><span id="selectedDayLabel">날짜를 선택해 줘.</span><span id="monthCount" class="status"></span></div><div id="monthlyEntries" aria-live="polite"><div class="paper empty">기록을 불러오는 중…</div></div></section></main><script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
 const $=id=>document.getElementById(id);let client=null,user=null,offset=0,editing=null;const PAGE=20;const tz='Asia/Seoul';const dt=new Intl.DateTimeFormat('ko-KR',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'});$('today').textContent=dt.format(new Date());$('url').value=localStorage.getItem('diary_url')||'';$('key').value=localStorage.getItem('diary_key')||'';function msg(s,err=false){$('authStatus').textContent=s;$('authStatus').className='status'+(err?' error':'')}function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function setup(){const u=$('url').value.trim(),k=$('key').value.trim();if(!u||!k){msg('설정에서 URL과 키를 입력해 줘.',true);return}try{client=createClient(u,k);client.auth.onAuthStateChange((_e,s)=>{user=s?.user||null;updateAuth();if(user)load(true);else $('entries').innerHTML='<div class="paper empty"></div>'});client.auth.getUser().then(({data})=>{user=data.user;updateAuth();if(user)load(true);else $('entries').innerHTML='<div class="paper empty"></div>'}).catch(e=>msg(e.message,true))}catch(e){msg(e.message,true)}}function updateAuth(){$('loginGate').classList.toggle('hidden',!!user);$('signedOut').classList.toggle('hidden',!!user);$('signedIn').classList.toggle('hidden',!user);$('account').textContent=user?.email||'';$('submit').disabled=!user;} $('gateCard').classList.toggle('needs-config',!($('url').value&&$('key').value));$('gateSaveConfig').onclick=()=>{const u=$('gateUrl').value.trim(),k=$('gateKey').value.trim();if(!/^https:\/\/[^ ]+\.supabase\.co\/?$/.test(u)||!k){$('gateStatus').textContent='Supabase URL과 공개 키를 확인해 줘.';return}localStorage.setItem('diary_url',u);localStorage.setItem('diary_key',k);location.reload()};$('gateSignin').onclick=async()=>{if(!client){$('gateStatus').textContent='먼저 Supabase 연결 정보를 입력해 줘.';return}const {error}=await client.auth.signInWithPassword({email:$('gateEmail').value.trim(),password:$('gatePassword').value});$('gateStatus').textContent=error?.message||''};$('gateSignup').onclick=async()=>{if(!client){$('gateStatus').textContent='먼저 Supabase 연결 정보를 입력해 줘.';return}const {error}=await client.auth.signUp({email:$('gateEmail').value.trim(),password:$('gatePassword').value});$('gateStatus').textContent=error?.message||'가입 요청 완료! 이메일 인증을 사용하는 경우 메일을 확인해 줘.'};$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('gateSignin').click()});$('settingsBtn').onclick=()=>$('settings').classList.toggle('open');$('saveConfig').onclick=()=>{localStorage.setItem('diary_url',$('url').value.trim());localStorage.setItem('diary_key',$('key').value.trim());location.reload()};$('signup').onclick=async()=>{if(!client)return msg('먼저 설정에서 Supabase를 연결해 줘.',true);const {error}=await client.auth.signUp({email:$('email').value,password:$('password').value});msg(error?.message||'가입 요청 완료! 이메일 인증 설정에 따라 메일을 확인해 줘.',!!error)};$('signin').onclick=async()=>{if(!client)return msg('먼저 Supabase를 연결해 줘.',true);const {error}=await client.auth.signInWithPassword({email:$('email').value,password:$('password').value});msg(error?.message||'일기장을 열었어.',!!error)};$('signout').onclick=async()=>{await client?.auth.signOut();$('entries').innerHTML='<div class="paper empty"></div>';$('monthlyEntries').innerHTML='<div class="paper empty">로그인한 뒤 기록을 볼 수 있어.</div>'};$('submit').onclick=async()=>{if(!user)return msg('로그인이 필요해.',true);const body=$('content').value.trim();if(!body)return;$('submit').disabled=true;$('writeStatus').textContent='종이에 마음을 옮기는 중…';const q=editing?client.from('diary_entries').update({content:body}).eq('id',editing).eq('user_id',user.id):client.from('diary_entries').insert({content:body,user_id:user.id});const {error}=await q;$('submit').disabled=false;if(error){$('writeStatus').textContent='저장 실패: '+error.message;return}$('content').value='';fitDiaryEditor();editing=null;$('submit').textContent='기록 남기기';$('writeStatus').textContent='잘 간직했어.';await load(true)};async function load(reset=false){if(!client||!user)return;if(reset){offset=0;$('entries').innerHTML=''}const {data,error}=await client.from('diary_entries').select('id,content,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).range(offset,offset+PAGE-1);if(error){$('entries').innerHTML='<div class="paper empty error">불러오지 못했어: '+escapeHTML(error.message)+'</div>';return}if(reset&&!data.length)$('entries').innerHTML='<div class="paper empty">아직 기록이 없어.</div>';for(const item of data){const el=document.createElement('article');el.className='paper entry';const date=new Date(item.created_at);const dateText=new Intl.DateTimeFormat('ko-KR',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'}).format(date);el.innerHTML=`<div class="date">${escapeHTML(dateText)}</div><p>${escapeHTML(item.content)}</p><div class="tools"><button class="link edit">고쳐 쓰기</button><button class="link del">지우기</button></div>`;el.querySelector('.edit').onclick=()=>{editing=item.id;$('content').value=item.content;fitDiaryEditor();$('submit').textContent='수정 저장하기';$('editor').scrollIntoView({behavior:'smooth'});$('content').focus()};el.querySelector('.del').onclick=async()=>{if(!confirm('이 기록을 지울까? 삭제하면 되돌릴 수 없어.'))return;const {error}=await client.from('diary_entries').delete().eq('id',item.id).eq('user_id',user.id);if(error)alert(error.message);else load(true)};$('entries').appendChild(el)}offset+=data.length;$('more').classList.toggle('hidden',data.length<PAGE)}$('more').onclick=()=>load(false);if($('url').value&&$('key').value)setup();else{updateAuth()}
 
-// Monthly archive: reads the same Supabase table as the main diary.
+// Calendar archive and Word export. All diary data stays in Supabase until explicitly exported.
 let currentView='write';
+let archiveItems=[];
+let archiveReady=false;
+let archiveLoading=false;
+let calendarMonth='';
+let selectedDay='';
+const localDateParts=new Intl.DateTimeFormat('en-US',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'});
+function dateKey(date){
+ const parts=localDateParts.formatToParts(date);
+ const v=k=>parts.find(p=>p.type===k).value;
+ return `${v('year')}-${v('month')}-${v('day')}`;
+}
+function dateLabel(item){return new Intl.DateTimeFormat('ko-KR',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(item.created_at));}
 function setView(view){
  currentView=view;
  $('writeView').classList.toggle('hidden',view!=='write');
@@ -31,45 +67,139 @@ function setView(view){
 }
 $('tabWrite').onclick=()=>setView('write');
 $('tabMonths').onclick=()=>setView('months');
-function monthKey(date){
- const parts=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit'}).formatToParts(date);
- return parts.find(p=>p.type==='year').value+'-'+parts.find(p=>p.type==='month').value;
+$('prevMonth').onclick=()=>shiftMonth(-1);
+$('nextMonth').onclick=()=>shiftMonth(1);
+function shiftMonth(delta){
+ const [y,m]=calendarMonth.split('-').map(Number);
+ const d=new Date(Date.UTC(y,m-1+delta,1));
+ calendarMonth=`${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;
+ selectedDay='';renderCalendar();renderSelectedDay();
+}
+async function fetchAllEntries(){
+ if(!client||!user)throw new Error('먼저 로그인해 줘.');
+ const all=[];const size=500;
+ for(let start=0;;start+=size){
+  const {data,error}=await client.from('diary_entries').select('id,content,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).range(start,start+size-1);
+  if(error)throw error;
+  all.push(...(data||[]));
+  if(!data||data.length<size)break;
+ }
+ return all;
 }
 async function loadMonths(){
- const box=$('monthlyEntries');
- if(!client||!user){box.innerHTML='<div class="paper empty">로그인한 뒤 기록을 볼 수 있어.</div>';return;}
- box.innerHTML='<div class="paper empty">기록을 불러오는 중…</div>';
- const all=[];let start=0;const size=500;
- while(true){
-  const {data,error}=await client.from('diary_entries').select('id,content,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).range(start,start+size-1);
-  if(error){box.innerHTML='<div class="paper empty error">불러오지 못했어: '+escapeHTML(error.message)+'</div>';return;}
-  if(!data||!data.length)break;
-  all.push(...data);if(data.length<size)break;
-  start+=data.length;
- }
- $('monthCount').textContent=all.length+'개의 기록';
- box.innerHTML='';
- if(!all.length){box.innerHTML='<div class="paper empty month-empty">아직 기록이 없어.</div>';return;}
- const groups=new Map();
- for(const item of all){const k=monthKey(new Date(item.created_at));if(!groups.has(k))groups.set(k,[]);groups.get(k).push(item);}
- for(const [key,items] of groups){
-  const section=document.createElement('section');section.className='month-group';
-  const heading=document.createElement('h2');heading.className='month-title';
-  const [year,month]=key.split('-');heading.textContent=year+'년 '+Number(month)+'월';
-  const count=document.createElement('small');count.textContent=items.length+'개의 기록';heading.appendChild(count);section.appendChild(heading);
-  for(const item of items){
-   const article=document.createElement('article');article.className='paper entry';
-   const date=new Date(item.created_at);
-   const dateText=new Intl.DateTimeFormat('ko-KR',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'}).format(date);
-   article.innerHTML='<div class="date">'+escapeHTML(dateText)+'</div><p>'+escapeHTML(item.content)+'</p><div class="tools"><button class="link edit">고쳐 쓰기</button><button class="link del">지우기</button></div>';
-   article.querySelector('.edit').onclick=()=>{editing=item.id;$('content').value=item.content;fitDiaryEditor();$('submit').textContent='수정 저장하기';setView('write');$('editor').scrollIntoView({behavior:'smooth'});$('content').focus();};
-   article.querySelector('.del').onclick=async()=>{if(!confirm('이 기록을 지울까? 삭제하면 되돌릴 수 없어.'))return;const {error}=await client.from('diary_entries').delete().eq('id',item.id).eq('user_id',user.id);if(error)alert(error.message);else{await load(true);await loadMonths();}};
-   section.appendChild(article);
-  }
-  box.appendChild(section);
+ if(archiveLoading)return;
+ if(!client||!user){$('monthlyEntries').innerHTML='<div class="paper empty">로그인한 뒤 기록을 볼 수 있어.</div>';return;}
+ archiveLoading=true;
+ $('monthlyEntries').innerHTML='<div class="paper empty">기록을 불러오는 중…</div>';
+ try{
+  archiveItems=await fetchAllEntries();archiveReady=true;
+  const todayKey=dateKey(new Date());
+  if(!calendarMonth)calendarMonth=(archiveItems[0]?dateKey(new Date(archiveItems[0].created_at)):todayKey).slice(0,7);
+  $('monthCount').textContent=archiveItems.length+'개의 전체 기록';
+  renderCalendar();renderSelectedDay();
+ }catch(e){$('monthlyEntries').innerHTML='<div class="paper empty error">불러오지 못했어: '+escapeHTML(e.message)+'</div>';}
+ finally{archiveLoading=false;}
+}
+function renderCalendar(){
+ const [y,m]=calendarMonth.split('-').map(Number);
+ $('calendarTitle').textContent=`${y}년 ${m}월`;
+ const counts=new Map();
+ for(const item of archiveItems){const k=dateKey(new Date(item.created_at));counts.set(k,(counts.get(k)||0)+1);}
+ const grid=$('calendarGrid');grid.replaceChildren();
+ for(const name of ['일','월','화','수','목','금','토']){const cell=document.createElement('div');cell.className='calendar-weekday';cell.textContent=name;grid.appendChild(cell);}
+ const first=new Date(Date.UTC(y,m-1,1)).getUTCDay();
+ const days=new Date(Date.UTC(y,m,0)).getUTCDate();
+ for(let i=0;i<first;i++){const spacer=document.createElement('div');spacer.setAttribute('aria-hidden','true');grid.appendChild(spacer);}
+ for(let day=1;day<=days;day++){
+  const key=`${calendarMonth}-${String(day).padStart(2,'0')}`;
+  const count=counts.get(key)||0;
+  const b=document.createElement('button');b.type='button';b.className='calendar-day'+(count?' has-entry':'')+(key===selectedDay?' selected':'');
+  b.disabled=!count;b.setAttribute('aria-label',`${m}월 ${day}일, ${count}개의 기록`);b.setAttribute('aria-pressed',key===selectedDay?'true':'false');
+  const n=document.createElement('span');n.textContent=day;b.appendChild(n);
+  if(count){const c=document.createElement('span');c.className='day-count';c.textContent=count+'개';b.appendChild(c);b.onclick=()=>{selectedDay=key;renderCalendar();renderSelectedDay();};}
+  grid.appendChild(b);
  }
 }
-
+function renderSelectedDay(){
+ const box=$('monthlyEntries');box.replaceChildren();
+ if(!archiveReady){box.innerHTML='<div class="paper empty">기록을 불러오는 중…</div>';return;}
+ if(!selectedDay){$('selectedDayLabel').textContent='달력에서 기록이 있는 날짜를 눌러 줘.';if(!archiveItems.length)box.innerHTML='<div class="paper empty">아직 기록이 없어.</div>';return;}
+ const dayItems=archiveItems.filter(item=>dateKey(new Date(item.created_at))===selectedDay);
+ const [year,month,day]=selectedDay.split('-');
+ $('selectedDayLabel').textContent=`${year}년 ${Number(month)}월 ${Number(day)}일 · ${dayItems.length}개의 기록`;
+ for(const item of dayItems){
+  const article=document.createElement('article');article.className='paper entry';
+  article.innerHTML='<div class="date">'+escapeHTML(dateLabel(item))+'</div><p>'+escapeHTML(item.content)+'</p><div class="tools"><button class="link edit">고쳐 쓰기</button><button class="link del">지우기</button></div>';
+  article.querySelector('.edit').onclick=()=>{editing=item.id;$('content').value=item.content;fitDiaryEditor();$('submit').textContent='수정 저장하기';setView('write');$('editor').scrollIntoView({behavior:'smooth'});$('content').focus();};
+  article.querySelector('.del').onclick=async()=>{if(!confirm('이 기록을 지울까? 삭제하면 되돌릴 수 없어.'))return;const {error}=await client.from('diary_entries').delete().eq('id',item.id).eq('user_id',user.id);if(error){alert(error.message);return;}await load(true);await loadMonths();};
+  box.appendChild(article);
+ }
+}
+// Render a four-line preview of each entry in today's history. Click to expand/collapse.
+function installEntryPreviews(){
+ const box=$('entries');
+ const observer=new MutationObserver(()=>{
+  for(const article of box.querySelectorAll('.entry:not([data-preview-ready])')){
+   article.dataset.previewReady='1';
+   const paragraph=article.querySelector('p');if(!paragraph)continue;
+   const toggle=document.createElement('button');toggle.type='button';toggle.className='link entry-toggle';toggle.textContent='전체 읽기';toggle.setAttribute('aria-expanded','false');
+   paragraph.after(toggle);
+   toggle.onclick=()=>{const open=article.classList.toggle('expanded');toggle.textContent=open?'접어두기':'전체 읽기';toggle.setAttribute('aria-expanded',String(open));};
+   // Hide the toggle if the entry fits into four rendered lines.
+   requestAnimationFrame(()=>{if(!article.isConnected)return;const style=getComputedStyle(paragraph);const limit=parseFloat(style.lineHeight)*4+2;article.classList.add('expanded');const fullHeight=paragraph.scrollHeight;article.classList.remove('expanded');toggle.hidden=fullHeight<=limit;});
+  }
+ });
+ observer.observe(box,{childList:true});
+}
+installEntryPreviews();
+// Minimal standards-compliant OOXML .docx export; no third-party document service.
+const enc=new TextEncoder();
+function xmlSafe(text){return String(text).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));}
+function docParagraph(text,style=''){
+ const run='<w:r><w:t xml:space="preserve">'+xmlSafe(text)+'</w:t></w:r>';
+ return '<w:p>'+(style?'<w:pPr><w:pStyle w:val="'+style+'"/></w:pPr>':'')+run+'</w:p>';
+}
+function wordXML(items){
+ const lines=[docParagraph('마음의 여백 — 일기 모음','Title')];
+ for(const item of items){lines.push(docParagraph(dateLabel(item),'Heading1'));
+  for(const line of item.content.split(/\r?\n/))lines.push(docParagraph(line));
+  lines.push(docParagraph(''));
+ }
+ return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+lines.join('')+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>';
+}
+function crc32(bytes){let c=0xffffffff;for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;}
+function makeDocx(files){
+ const chunks=[],central=[];let position=0;
+ function push(a){chunks.push(a);position+=a.length;}
+ function header(len){return new Uint8Array(len);}
+ for(const [name,content] of Object.entries(files)){
+  const filename=enc.encode(name),data=enc.encode(content),crc=crc32(data),offset=position;
+  const local=header(30+filename.length),v=new DataView(local.buffer);
+  v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x800,true);v.setUint32(14,crc,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);v.setUint16(26,filename.length,true);local.set(filename,30);push(local);push(data);
+  const cd=header(46+filename.length),d=new DataView(cd.buffer);
+  d.setUint32(0,0x02014b50,true);d.setUint16(4,20,true);d.setUint16(6,20,true);d.setUint16(8,0x800,true);d.setUint32(16,crc,true);d.setUint32(20,data.length,true);d.setUint32(24,data.length,true);d.setUint16(28,filename.length,true);d.setUint32(42,offset,true);cd.set(filename,46);central.push(cd);
+ }
+ const start=position;for(const cd of central)push(cd);
+ const end=header(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,central.length,true);e.setUint16(10,central.length,true);e.setUint32(12,position-start,true);e.setUint32(16,start,true);push(end);
+ return new Blob(chunks,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+$('exportWord').onclick=async()=>{
+ const button=$('exportWord');button.disabled=true;button.textContent='Word 문서를 만드는 중…';
+ try{
+  const items=await fetchAllEntries();
+  if(!items.length){alert('아직 내보낼 일기가 없어.');return;}
+  const files={
+   '[Content_Types].xml':'<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
+   '_rels/.rels':'<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+   'word/_rels/document.xml.rels':'<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+   'word/styles.xml':'<?xml version="1.0" encoding="UTF-8"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:eastAsia="Malgun Gothic"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:sz w:val="36"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:pPr><w:spacing w:before="280" w:after="100"/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/></w:rPr></w:style></w:styles>',
+   'word/document.xml':wordXML(items)
+  };
+  const blob=makeDocx(files),url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='마음의_여백_일기_전체_'+dateKey(new Date())+'.docx';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+ }catch(e){alert('내보내기에 실패했어: '+e.message);}
+ finally{button.disabled=false;button.textContent='전체 일기 Word로 내보내기 (.docx)';}
+};
 // Expand the writing area with its contents, including pasted and edited entries.
 function fitDiaryEditor(){
  const editor=document.getElementById('content');
